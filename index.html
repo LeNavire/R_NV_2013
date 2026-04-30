@@ -1,492 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WindCalc_Pro | Authentification Expert</title>
-    <!-- Intégration de Tailwind CSS pour le style -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Construction - Site en Chantier</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Polices techniques -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Roboto+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-
     <style>
-      /* Définition des couleurs personnalisées */
-      :root {
-        --sky-blue: #87ceeb;
-        --wind-blue: #add8e6;
-        --black-app: #0b0f19; /* Noir très profond type radar */
-        --gray-app: #1e293b; /* Gris technique */
-        --yellow-app: #fbbf24;
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Roboto:wght@400;700&display=swap');
 
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: var(--black-app);
-        font-family: "Rajdhani", sans-serif;
-        color: #e2e8f0;
-      }
-
-      /* Grille technique (Blueprint) en arrière-plan */
-      .blueprint-bg {
-        position: absolute;
-        inset: 0;
-        background-size: 40px 40px;
-        background-image:
-          linear-gradient(
-            to right,
-            rgba(135, 206, 235, 0.05) 1px,
-            transparent 1px
-          ),
-          linear-gradient(
-            to bottom,
-            rgba(135, 206, 235, 0.05) 1px,
-            transparent 1px
-          );
-        z-index: 1;
-      }
-
-      /* Canvas pour la simulation du vent en soufflerie */
-      #windCanvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2;
-      }
-
-      /* Conteneurs principaux */
-      .ui-layer {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* --- Écran de Chargement Technique --- */
-      #loading-screen {
-        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .system-logs {
-        font-family: "Roboto Mono", monospace;
-        font-size: 0.85rem;
-        color: var(--wind-blue);
-        height: 20px;
-        margin-top: 10px;
-        opacity: 0.8;
-      }
-
-      .progress-track-expert {
-        width: 400px;
-        height: 4px;
-        background-color: rgba(255, 255, 255, 0.1);
-        margin-top: 1rem;
-        position: relative;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
-
-      .progress-fill-expert {
-        height: 100%;
-        background-color: var(--sky-blue);
-        width: 0%;
-        box-shadow: 0 0 15px var(--sky-blue);
-        transition: width 5s linear;
-      }
-
-      .progress-percentage {
-        font-family: "Roboto Mono", monospace;
-        color: var(--yellow-app);
-        font-size: 1.2rem;
-        margin-top: 10px;
-        letter-spacing: 2px;
-      }
-
-      /* --- Écran de Connexion Expert --- */
-      #login-screen {
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 1s ease-in-out;
-      }
-
-      .expert-panel {
-        background: rgba(30, 41, 59, 0.7); /* Base grise translucide */
-        backdrop-filter: blur(8px);
-        border: 1px solid var(--gray-app);
-        border-top: 3px solid var(--wind-blue); /* Ligne de force en haut */
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-        position: relative;
-      }
-
-      /* Angles techniques du panneau */
-      .expert-panel::before,
-      .expert-panel::after {
-        content: "";
-        position: absolute;
-        width: 15px;
-        height: 15px;
-        border: 2px solid var(--sky-blue);
-        opacity: 0.5;
-      }
-      .expert-panel::before {
-        top: -1px;
-        left: -1px;
-        border-right: none;
-        border-bottom: none;
-      }
-      .expert-panel::after {
-        bottom: -1px;
-        right: -1px;
-        border-left: none;
-        border-top: none;
-      }
-
-      .expert-label {
-        font-family: "Roboto Mono", monospace;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        color: var(--wind-blue);
-        letter-spacing: 1.5px;
-      }
-
-      .expert-input {
-        background-color: rgba(11, 15, 25, 0.6);
-        border: 1px solid rgba(135, 206, 235, 0.2);
-        color: #fff;
-        font-family: "Roboto Mono", monospace;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-      }
-
-      .expert-input:focus {
-        outline: none;
-        border-color: var(--sky-blue);
-        box-shadow: inset 0 0 8px rgba(135, 206, 235, 0.2);
-        background-color: rgba(11, 15, 25, 0.9);
-      }
-
-      .btn-expert {
-        background-color: var(--yellow-app);
-        color: var(--black-app);
-        font-family: "Rajdhani", sans-serif;
-        font-weight: 700;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-      }
-
-      .btn-expert:hover {
-        background-color: #f59e0b;
-        box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
-        border-color: #fff;
-      }
-
-      /* Animation d'erreur technique */
-      @keyframes glitch {
-        0% {
-          transform: translate(0);
+        :root {
+            --construction-yellow: #facc15;
+            --construction-black: #1a1a1a;
         }
-        20% {
-          transform: translate(-2px, 2px);
+
+        body {
+            background-color: var(--construction-black);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
         }
-        40% {
-          transform: translate(-2px, -2px);
+
+        .stencil-text {
+            font-family: 'Black Ops One', cursive;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        60% {
-          transform: translate(2px, 2px);
+
+        .hazard-stripes {
+            background: repeating-linear-gradient(
+                45deg,
+                var(--construction-yellow),
+                var(--construction-yellow) 20px,
+                var(--construction-black) 20px,
+                var(--construction-black) 40px
+            );
         }
-        80% {
-          transform: translate(2px, -2px);
+
+        @keyframes crane-move {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
         }
-        100% {
-          transform: translate(0);
+
+        .crane-animation {
+            animation: crane-move 4s ease-in-out infinite;
+            transform-origin: bottom center;
         }
-      }
-      .glitch-error {
-        animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-        border-color: #ef4444 !important;
-      }
+
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .gear-spin {
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
-  </head>
-  <body>
-    <!-- Grille de fond type logiciel CAO/DAO -->
-    <div class="blueprint-bg"></div>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Animation du vent type Soufflerie Aérodynamique (CFD) -->
-    <canvas id="windCanvas"></canvas>
+    <!-- Bordure supérieure de chantier -->
+    <div class="fixed top-0 left-0 w-full h-6 hazard-stripes border-b-4 border-yellow-500 shadow-lg"></div>
 
-    <!-- Écran de Chargement Technique -->
-    <div id="loading-screen" class="ui-layer">
-      <div class="flex items-center gap-4 mb-2">
-        <svg
-          class="w-12 h-12 text-yellow-400 animate-spin-slow"
-          style="animation: spin 4s linear infinite"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0 0v-8m0 0L8.5 9.5m3.5 4.5l3.5-2.5"
-          ></path>
-        </svg>
-        <h1 class="text-5xl font-bold tracking-wider text-white">
-          WindCalc<span style="color: var(--yellow-app)">_Pro</span>
+    <!-- Contenu Principal -->
+    <main class="max-w-3xl w-full text-center space-y-8 z-10">
+        
+        <!-- Icône de Chantier (Cône SVG) -->
+        <div class="flex justify-center mb-6">
+            <svg class="w-32 h-32 text-yellow-400 gear-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+
+        <h1 class="stencil-text text-5xl md:text-7xl text-yellow-400 font-bold mb-2">
+            Under Construction
         </h1>
-      </div>
-      <p
-        class="text-gray-400 text-sm tracking-widest uppercase mb-6 font-semibold"
-      >
-        Système d'analyse structurale RNV 2013
-      </p>
+        
+        <p class="text-xl md:text-2xl text-gray-300 font-light max-w-xl mx-auto uppercase tracking-widest">
+            Application en cours de révision
+        </p>
 
-      <div class="progress-track-expert">
-        <div id="progress-bar" class="progress-fill-expert"></div>
-      </div>
-
-      <div class="flex w-[400px] justify-between items-center mt-2">
-        <div id="system-logs" class="system-logs">
-          Initialisation du noyau...
-        </div>
-        <div id="progress-text" class="progress-percentage">0%</div>
-      </div>
-    </div>
-
-    <!-- Écran de Connexion Expert -->
-    <div id="login-screen" class="ui-layer">
-      <div id="login-box" class="expert-panel p-10 w-full max-w-md">
-        <div class="text-center mb-10 border-b border-gray-600 pb-6">
-          <h2 class="text-3xl font-bold text-white tracking-widest">
-            PORTAIL<span class="text-wind-blue">_INGÉNIEUR</span>
-          </h2>
-          <p class="text-xs mt-2 text-gray-400 font-mono tracking-widest">
-            MODULE RNV PRÊT À L'EMPLOI
-          </p>
+        <!-- Barre de progression de chantier -->
+        <div class="w-full bg-gray-800 rounded-full h-8 border-2 border-yellow-500 overflow-hidden relative">
+            <div id="progress-bar" class="h-full hazard-stripes transition-all duration-1000" style="width: 65%;"></div>
+            <div class="absolute inset-0 flex items-center justify-center font-bold text-black drop-shadow-sm" id="progress-text">
+                RECONSTRUCTION EN COURS : 65%
+            </div>
         </div>
 
-        <!-- Bouton unique remplaçant le formulaire -->
-        <button
-          id="btn-start"
-          class="btn-expert w-full mt-2 py-5 text-xl rounded-lg"
-        >
-          DÉCOLLER
-        </button>
-
-        <div class="mt-8 text-center">
-          <p class="text-[10px] text-gray-500 font-mono">
-            v2.4.1 - Réglementation Neige et Vent 2013
-          </p>
+        <!-- Panneau d'avertissement -->
+        <div class="bg-yellow-400 text-black p-6 rounded-lg shadow-2xl border-4 border-white inline-block transform -rotate-1">
+            <div class="flex items-center space-x-4">
+                <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="text-left">
+                    <h2 class="font-bold text-xl uppercase italic">Zone de travaux</h2>
+                    <p class="text-sm font-semibold">Nos ingénieurs travaillent d'arrache-pied pour améliorer votre expérience.</p>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Section de notification -->
+        <div class="mt-12 bg-gray-900/50 p-6 rounded-xl border border-gray-700 backdrop-blur-sm">
+            <h3 class="text-white font-bold mb-4">Être informé du redémarrage ?</h3>
+            <div class="flex flex-col md:flex-row gap-2">
+                <input type="email" placeholder="Votre adresse email" class="flex-grow bg-black border border-gray-600 p-3 rounded text-white focus:border-yellow-400 outline-none">
+                <button class="bg-yellow-400 text-black font-bold py-3 px-8 rounded hover:bg-yellow-300 transition-colors uppercase">
+                    M'avertir
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bordure inférieure de chantier -->
+    <div class="fixed bottom-0 left-0 w-full h-6 hazard-stripes border-t-4 border-yellow-500 shadow-inner"></div>
+
+    <!-- Éléments de décoration flottants (Icônes) -->
+    <div class="hidden lg:block fixed bottom-10 left-10 opacity-20 hover:opacity-100 transition-opacity crane-animation">
+        <svg class="w-48 h-48 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M22,19V17H19V10H20V8H15V10H16V17H13V9H14V7H11V9H12V17H9V12H10V10H7V12H8V17H5V14H6V12H3V14H4V17H2V19H22M5,5H19V7H5V5Z" />
+        </svg>
     </div>
 
     <script>
-      /* =========================================
-           1. SIMULATION DU VENT (STYLE SOUFFLERIE CFD)
-           ========================================= */
-      const canvas = document.getElementById("windCanvas");
-      const ctx = canvas.getContext("2d");
+        // Simulation d'une progression dynamique
+        let progress = 65;
+        const bar = document.getElementById('progress-bar');
+        const text = document.getElementById('progress-text');
 
-      let width, height;
-      let streamLines = [];
-
-      function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      }
-
-      // Particules modélisées comme des flux laminaires (Streamlines)
-      class StreamLine {
-        constructor() {
-          this.reset();
-          this.x = Math.random() * width;
-        }
-
-        reset() {
-          this.x = -Math.random() * 800; // Départ étendu
-          // Concentrer légèrement le vent au centre de l'écran
-          this.y = Math.random() * height * 0.8 + height * 0.1;
-          this.length = Math.random() * 300 + 100; // Lignes plus longues pour l'effet fluide
-          this.speed = Math.random() * 8 + 4; // Vitesse modérée et constante
-          this.opacity = Math.random() * 0.3 + 0.05; // Très subtil
-          this.thickness = Math.random() < 0.1 ? 2 : 1; // Quelques lignes épaisses
-          this.offsetY = Math.random() * 100; // Pour la sinusoïde
-        }
-
-        update() {
-          this.x += this.speed;
-          // Mouvement ondulatoire très léger (aérodynamisme)
-          this.y += Math.sin((this.x + this.offsetY) / 150) * 0.3;
-
-          if (this.x > width + this.length) {
-            this.reset();
-            this.x = -this.length;
-          }
-        }
-
-        draw() {
-          ctx.beginPath();
-          // Effet de dégradé sur la ligne de vent (fondu aux extrémités)
-          let gradient = ctx.createLinearGradient(
-            this.x,
-            this.y,
-            this.x + this.length,
-            this.y,
-          );
-          gradient.addColorStop(0, `rgba(135, 206, 235, 0)`);
-          gradient.addColorStop(0.5, `rgba(173, 216, 230, ${this.opacity})`);
-          gradient.addColorStop(1, `rgba(135, 206, 235, 0)`);
-
-          ctx.moveTo(this.x, this.y);
-          ctx.lineTo(this.x + this.length, this.y);
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = this.thickness;
-          ctx.stroke();
-        }
-      }
-
-      function initCFD() {
-        resize();
-        window.addEventListener("resize", resize);
-        streamLines = [];
-        for (let i = 0; i < 150; i++) {
-          // Plus de particules pour un effet de fluide continu
-          streamLines.push(new StreamLine());
-        }
-        animateCFD();
-      }
-
-      function animateCFD() {
-        ctx.clearRect(0, 0, width, height);
-        streamLines.forEach((line) => {
-          line.update();
-          line.draw();
-        });
-        requestAnimationFrame(animateCFD);
-      }
-
-      initCFD();
-
-      /* =========================================
-           2. GESTION DU CHARGEMENT EXPERT (5s)
-           ========================================= */
-      document.addEventListener("DOMContentLoaded", () => {
-        const progressBar = document.getElementById("progress-bar");
-        const progressText = document.getElementById("progress-text");
-        const logsText = document.getElementById("system-logs");
-        const loadingScreen = document.getElementById("loading-screen");
-        const loginScreen = document.getElementById("login-screen");
-
-        // Logs techniques affichés pendant le chargement
-        const logs = [
-          "Chargement des abaques de pression...",
-          "Calibration de la topographie...",
-          "Vérification des coefficients dynamiques...",
-          "Application des règles NV2013...",
-          "Système prêt. Lancement de l'interface...",
-        ];
-
-        // Déclencher la barre de progression CSS
-        setTimeout(() => {
-          progressBar.style.width = "100%";
-        }, 50);
-
-        // Gérer le texte des pourcentages et les logs JS
-        let start = null;
-        const duration = 5000;
-
-        function updateProgress(timestamp) {
-          if (!start) start = timestamp;
-          let progress = timestamp - start;
-          let percentage = Math.min((progress / duration) * 100, 100);
-
-          progressText.innerText = Math.floor(percentage) + "%";
-
-          // Mettre à jour les logs en fonction du temps
-          let logIndex = Math.floor((progress / duration) * logs.length);
-          if (logIndex < logs.length) {
-            logsText.innerText = "> " + logs[logIndex];
-          }
-
-          if (progress < duration) {
-            window.requestAnimationFrame(updateProgress);
-          } else {
-            // Fin du chargement
-            setTimeout(() => {
-              loadingScreen.style.opacity = "0";
-              setTimeout(() => {
-                loadingScreen.style.display = "none";
-                loginScreen.style.pointerEvents = "auto";
-                loginScreen.style.opacity = "1";
-              }, 800);
-            }, 200);
-          }
-        }
-        window.requestAnimationFrame(updateProgress);
-
-        /* =========================================
-           3. GESTION DU BOUTON DE DÉMARRAGE
-           ========================================= */
-        const btnStart = document.getElementById("btn-start");
-        const loginBox = document.getElementById("login-box");
-
-        btnStart.addEventListener("click", () => {
-          // Interface technique de succès/chargement avant redirection
-          loginBox.style.borderTopColor = "#10B981"; // Vert succès
-          loginBox.innerHTML = `
-                    <div class="text-center py-6">
-                        <div class="inline-block p-4 rounded-full bg-emerald-900/50 mb-4 border border-emerald-500">
-                            <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white font-rajdhani tracking-widest">LANCEMENT EN COURS</h3>
-                        <p class="text-xs text-emerald-400 mt-3 font-mono">> Redirection vers RNV2013.html...</p>
-                        <div class="w-full bg-gray-700 h-1 mt-4 overflow-hidden">
-                            <div class="bg-emerald-500 h-full w-full" style="animation: loadProgress 1.5s linear;"></div>
-                        </div>
-                    </div>
-                `;
-
-          // Redirection vers RNV2013.html après l'animation
-          setTimeout(() => {
-            try {
-              // Prévention de l'erreur dans l'environnement de prévisualisation sécurisé (iframe/sandbox)
-              if (
-                window.location.origin === "null" ||
-                window.location.protocol === "about:" ||
-                window.location.protocol === "blob:" ||
-                window.location.protocol === "data:"
-              ) {
-                throw new Error("Environnement Sandbox");
-              }
-              window.location.href = "RNV2013.html";
-            } catch (error) {
-              // Simulation de la page de destination pour éviter que la prévisualisation ne plante
-              document.body.innerHTML = `
-                            <div class="blueprint-bg" style="position: absolute; inset: 0; background-size: 40px 40px; background-image: linear-gradient(to right, rgba(135, 206, 235, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(135, 206, 235, 0.05) 1px, transparent 1px); z-index: 1;"></div>
-                            <div style="position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                                <h1 class="text-5xl font-bold tracking-widest text-white mb-4">MODULE <span style="color: #FBBF24;">RNV 2013</span></h1>
-                                <p class="text-[#ADD8E6] font-mono">> Page chargée avec succès (Simulation)</p>
-                                <p class="text-gray-500 font-mono text-xs mt-6">Note : La vraie redirection vers "RNV2013.html" s'exécutera sans erreur dans votre navigateur local.</p>
-                            </div>
-                        `;
+        setInterval(() => {
+            if (progress < 98) {
+                progress += Math.random() * 0.5;
+                bar.style.width = progress + '%';
+                text.innerText = `RECONSTRUCTION EN COURS : ${Math.floor(progress)}%`;
             }
-          }, 1500);
-        });
-      });
+        }, 3000);
     </script>
-  </body>
+</body>
 </html>
